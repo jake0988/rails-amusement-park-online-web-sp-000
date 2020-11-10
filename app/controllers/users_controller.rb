@@ -1,5 +1,7 @@
 require 'pry'
 class UsersController < ApplicationController
+    # skip_before_action :verified_user, only: [:new, :create]
+
     def index
         render :home
     end
@@ -9,18 +11,14 @@ class UsersController < ApplicationController
     end
 
     def create
-        @user = User.create(user_params)
-        if @user.save
+        if (@user = User.create(user_params))
+        binding.pry
             session[:user_id] = @user.id
-        end
         redirect_to user_path(@user)
+        else
+            render 'new'
+        end
     end
-
-    def signin
-        @user = User.find_by(params[:name])
-        @user.id = session[:user_id]
-    end
-
 
     def show
         if session[:user_id]
@@ -41,6 +39,6 @@ class UsersController < ApplicationController
     private
     
     def user_params
-        params.require(:user).permit(:name, :mood, :height, :nausea, :happiness, :tickets, :password)
+        params.require(:user).permit(:name, :height, :nausea, :happiness, :tickets, :admin, :password)
     end
 end
